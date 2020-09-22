@@ -1,0 +1,24 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Contract
+    network: mainnet
+    source:
+      address: "0x2b591e99afe9f32eaa6214f7b7629768c40eeb39"
+      abi: Contract
+      startBlock: 9041100
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - ShareRateChange
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: ShareRateChange(uint256,indexed uint40)
+          handler: handleShareRateChange
+      file: ./src/mapping.ts

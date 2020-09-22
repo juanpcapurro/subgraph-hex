@@ -1,0 +1,10 @@
+type GlobalState @entity {
+  id: ID! # idk, it should be zero or something
+  shareRateRaw: String!
+}
+type ShareRateChange @entity {
+  id: ID! # idk, it should be zero or something
+  stakeId: String!
+  oldShareRateRaw: String!
+  newShareRateRaw: BigInt!
+}
