@@ -1,10 +1,24 @@
 type GlobalState @entity {
   id: ID! # idk, it should be zero or something
+  lockedHeartsTotalRaw: BigInt!
+  nextStakeSharesTotalRaw: BigInt!
   shareRateRaw: BigInt!
+  stakePenaltyTotalRaw: BigInt!
+  dailyDataCountRaw: BigInt!
+  stakeSharesTotalRaw: BigInt!
+  latestStakeIdRaw: BigInt!
+  unclaimedSatoshisTotalRaw: BigInt!
+  claimedSatoshisTotalRaw: BigInt!
+  claimedBtcAddrCountRaw: BigInt!
+  totalSupplyRaw: BigInt!
+  xfLobbyForCurrentDayRaw: BigInt!
 }
+
 type ShareRateChange @entity {
   id: ID! # idk, it should be zero or something
   stakeId: String!
+  blockNumber: BigInt!
+  differenceRaw: BigInt!
   oldShareRateRaw: BigInt!
   newShareRateRaw: BigInt!
 }
