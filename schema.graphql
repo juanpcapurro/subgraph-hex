@@ -1,10 +1,10 @@
 type GlobalState @entity {
   id: ID! # idk, it should be zero or something
-  shareRateRaw: String!
+  shareRateRaw: BigInt!
 }
 type ShareRateChange @entity {
   id: ID! # idk, it should be zero or something
   stakeId: String!
-  oldShareRateRaw: String!
+  oldShareRateRaw: BigInt!
   newShareRateRaw: BigInt!
 }
