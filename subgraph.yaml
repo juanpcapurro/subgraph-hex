@@ -23,4 +23,6 @@ dataSources:
           handler: handleShareRateChange
         - event: StakeStart(uint256,indexed address,indexed uint40)
           handler: handleStakeStart
+        - event: StakeEnd(uint256,uint256,indexed address,indexed uint40)
+          handler: handleStakeEnd
       file: ./src/mapping.ts
