@@ -1,6 +1,6 @@
-import { BigInt, ethereum } from '@graphprotocol/graph-ts'
-import { ShareRateChange as ShareRateChangeEvent, Contract } from '../generated/Contract/Contract'
-import { GlobalState, ShareRateChange } from '../generated/schema'
+import { BigInt, ethereum, Address, log } from '@graphprotocol/graph-ts'
+import { ShareRateChange as ShareRateChangeEvent, Contract, StakeStart } from '../generated/Contract/Contract'
+import { GlobalState, ShareRateChange, Stake } from '../generated/schema'
 
 //constants
 const GLOBAL_STATE_ID = 'global'
@@ -13,6 +13,30 @@ function getOrCreateGlobalState(): GlobalState {
     state.shareRateRaw = new BigInt(0)
   }
   return state as GlobalState
+}
+
+function createStake(contractAddress: Address, stakerAddr: Address, stakeId: BigInt): Stake {
+  const contract: Contract = Contract.bind(contractAddress)
+  const stakeCount: BigInt = contract.stakeCount(stakerAddr)
+  const stakeIndex = stakeCount - BigInt.fromI32(1)
+  log.info('length of stakes for address {}: {}. getting index {}', [
+    stakerAddr.toHexString(),
+    stakeCount.toString(),
+    stakeIndex.toString(),
+  ])
+  // TODO: if a user makes two stakes in the same block, this'll return the same one for both.
+  // unless the indexer does some fancy thing where it asks the node for the state of the contract after a certain transaction, and not at a certain height.
+  const stakeInfo = contract.stakeLists(stakerAddr, stakeIndex)
+  const stake: Stake = new Stake(stakeId.toString())
+  stake.stakeId = stakeId
+  stake.stakerAddr = stakerAddr
+  stake.stakedHeartsRaw = stakeInfo.value1
+  stake.stakedSharesRaw = stakeInfo.value2
+  stake.lockDay = BigInt.fromI32(stakeInfo.value3)
+  stake.stakedDays = BigInt.fromI32(stakeInfo.value4)
+  // stake.unlockDay will always be 0 when creating the stake, so we don't set it
+  stake.isAutoStake = stakeInfo.value6
+  return stake
 }
 
 function updateGlobalState(event: ethereum.Event): void {
@@ -52,4 +76,9 @@ export function handleShareRateChange(event: ShareRateChangeEvent): void {
   shareRateChange.blockNumber = event.block.number
 
   shareRateChange.save()
+}
+
+export function handleStakeStart(event: StakeStart): void {
+  const stake: Stake = createStake(event.address, event.params.stakerAddr, event.params.stakeId)
+  stake.save()
 }

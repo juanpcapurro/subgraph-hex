@@ -21,4 +21,6 @@ dataSources:
       eventHandlers:
         - event: ShareRateChange(uint256,indexed uint40)
           handler: handleShareRateChange
+        - event: StakeStart(uint256,indexed address,indexed uint40)
+          handler: handleStakeStart
       file: ./src/mapping.ts

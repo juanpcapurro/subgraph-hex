@@ -15,10 +15,22 @@ type GlobalState @entity {
 }
 
 type ShareRateChange @entity {
-  id: ID! # idk, it should be zero or something
+  id: ID! # it's set to the stakeId, I'm not sure what should go here
   stakeId: String!
   blockNumber: BigInt!
   differenceRaw: BigInt!
   oldShareRateRaw: BigInt!
   newShareRateRaw: BigInt!
+}
+
+type Stake @entity {
+  id: ID! # equals stakeId
+  stakeId: BigInt!
+  stakerAddr: Bytes! # address
+  stakedHeartsRaw: BigInt!
+  stakedSharesRaw: BigInt!
+  stakedDays: BigInt! # length of the stake
+  unlockDay: BigInt # day the stake was redeemed. null if it is still running
+  lockDay: BigInt! # day the tokens were staked
+  isAutoStake: Boolean!
 }
