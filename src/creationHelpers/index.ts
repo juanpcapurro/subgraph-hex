@@ -27,7 +27,6 @@ export function createStake(contractAddress: Address, stakerAddr: Address, stake
   // unless the indexer does some fancy thing where it asks the node for the state of the contract after a certain transaction, and not at a certain height.
   const stakeInfo: Contract__stakeListsResult = contract.stakeLists(stakerAddr, stakeIndex)
   const stake: Stake = new Stake(stakeId.toString())
-  stake.stakeId = stakeId
   stake.stakerAddr = stakerAddr
   stake.stakedHeartsRaw = stakeInfo.value1
   stake.stakedSharesRaw = stakeInfo.value2

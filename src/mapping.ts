@@ -38,7 +38,6 @@ export function handleShareRateChange(event: ShareRateChangeEvent): void {
   // TODO: check if there can be multiple ShareRateChange events for a single stakeId
   const shareRateChange: ShareRateChange = new ShareRateChange(stakeId)
 
-  shareRateChange.stakeId = stakeId
   shareRateChange.oldShareRateRaw = oldShareRateRaw
   shareRateChange.newShareRateRaw = shareRateRaw
   shareRateChange.differenceRaw = shareRateRaw - oldShareRateRaw
@@ -64,5 +63,9 @@ export function handleStakeEnd(event: StakeEndEvent): void {
   const stakeEnd: StakeEnd = createStakeEnd(event)
   stakeEnd.save()
   stake.unlockDay = stake.lockDay + stakeEnd.servedDays
+  stake.servedDays = stakeEnd.servedDays
+  stake.hadGoodAccounting = stakeEnd.prevUnlocked
+  stake.penaltyRaw = stakeEnd.penaltyRaw
+  stake.payoutRaw = stakeEnd.payoutRaw
   stake.save()
 }
