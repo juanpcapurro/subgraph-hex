@@ -23,6 +23,17 @@ type ShareRateChange @entity {
   newShareRateRaw: BigInt!
 }
 
+type StakeEnd @entity {
+  id: ID! # it's set to the stakeId, stakes can only end once
+  blockNumber: BigInt!
+  stakedHeartsRaw: BigInt!
+  stakeSharesRaw: BigInt!
+  payoutRaw: BigInt!
+  penaltyRaw: BigInt!
+  servedDays: BigInt!
+  prevUnlocked: Boolean!
+}
+
 type Stake @entity {
   id: ID! # equals stakeId
   stakeId: BigInt!
