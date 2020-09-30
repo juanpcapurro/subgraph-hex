@@ -22,6 +22,17 @@ type ShareRateChange @entity {
   newShareRateRaw: BigInt!
 }
 
+type StakeStart @entity {
+  id: ID! # it's set to the stakeId, stakes can only start once
+  data0: Bytes!
+  stakerAddr: Bytes! # address
+  blockNumber: BigInt!
+  stakedHeartsRaw: BigInt!
+  stakeSharesRaw: BigInt!
+  stakedDays: BigInt!
+  isAutoStake: Boolean!
+}
+
 type StakeEnd @entity {
   id: ID! # it's set to the stakeId, stakes can only end once
   blockNumber: BigInt!
@@ -37,7 +48,7 @@ type Stake @entity {
   id: ID! # equals stakeId
   stakerAddr: Bytes! # address
   stakedHeartsRaw: BigInt!
-  stakedSharesRaw: BigInt!
+  stakeSharesRaw: BigInt!
   stakedDays: BigInt! # length of the stake when is created
   servedDays: BigInt # how many days the stake actually lasted
   unlockDay: BigInt # day the stake was redeemed. null if it is still running

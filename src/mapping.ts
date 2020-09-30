@@ -1,12 +1,20 @@
-import { BigInt, ethereum, log, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt, ethereum } from '@graphprotocol/graph-ts'
 import {
   ShareRateChange as ShareRateChangeEvent,
   StakeEnd as StakeEndEvent,
+  StakeStart as StakeStartEvent,
   Contract,
-  StakeStart,
 } from '../generated/Contract/Contract'
-import { GlobalState, ShareRateChange, Stake, StakeEnd } from '../generated/schema'
-import { createStake, getOrCreateGlobalState, createStakeEnd } from './creationHelpers'
+import { GlobalState, ShareRateChange, Stake, StakeEnd, StakeStart } from '../generated/schema'
+import { createStakeStart, getOrCreateGlobalState, createStakeEnd } from './creationHelpers'
+
+// there's no way to retrieve it from the contract, but it's hardcoded and the contract isn't upgradeable
+const LAUNCH_TIME = BigInt.fromI32(1575331200)
+const SECONDS_PER_DAY = BigInt.fromI32(60 * 60 * 24)
+
+function getCurrentDay(timestamp: BigInt): BigInt {
+  return (timestamp - LAUNCH_TIME) / SECONDS_PER_DAY
+}
 
 function updateGlobalState(event: ethereum.Event): void {
   const state: GlobalState = getOrCreateGlobalState()
@@ -46,8 +54,16 @@ export function handleShareRateChange(event: ShareRateChangeEvent): void {
   shareRateChange.save()
 }
 
-export function handleStakeStart(event: StakeStart): void {
-  const stake: Stake = createStake(event.address, event.params.stakerAddr, event.params.stakeId)
+export function handleStakeStart(event: StakeStartEvent): void {
+  const stakeStart: StakeStart = createStakeStart(event)
+  const stake: Stake = new Stake(stakeStart.id)
+  stake.stakerAddr = stakeStart.stakerAddr
+  stake.lockDay = getCurrentDay(event.block.timestamp)
+  stake.stakedHeartsRaw = stakeStart.stakedHeartsRaw
+  stake.stakeSharesRaw = stakeStart.stakeSharesRaw
+  stake.stakedDays = stakeStart.stakedDays
+  stake.isAutoStake = stakeStart.isAutoStake
+  stakeStart.save()
   stake.save()
 }
 

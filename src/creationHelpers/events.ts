@@ -1,6 +1,61 @@
-import { StakeEnd as StakeEndEvent } from '../../generated/Contract/Contract'
-import { StakeEnd } from '../../generated/schema'
+import { StakeEnd as StakeEndEvent, StakeStart as StakeStartEvent } from '../../generated/Contract/Contract'
+import { StakeEnd, StakeStart } from '../../generated/schema'
 import { BigInt, log, Bytes } from '@graphprotocol/graph-ts'
+
+export function createStakeStart(event: StakeStartEvent): StakeStart {
+  // address  indexed  stakerAddr
+  // uint40   indexed  stakeId
+  // uint72            stakedHearts    -->  data0 [111: 40]
+  // uint72            stakeShares     -->  data0 [183:112]
+  // uint16            stakedDays      -->  data0 [199:184]
+  // bool              isAutoStake     -->  data0 [207:200]
+  const data0: Bytes = event.params.data0 as Bytes
+  const stakeStart = new StakeStart(event.params.stakeId.toString())
+  stakeStart.data0 = data0
+  stakeStart.stakerAddr = event.params.stakerAddr
+  stakeStart.blockNumber = event.block.number
+
+  const stakedHeartsAsBytes: Bytes = data0.subarray(5, 14) as Bytes
+  const stakeSharesAsBytes: Bytes = data0.subarray(14, 23) as Bytes
+  const stakedDaysAsBytes: Bytes = data0.subarray(23, 25) as Bytes
+  const isAutoStakeAsBytes: Bytes = data0.subarray(25, 26) as Bytes
+
+  stakeStart.stakedHeartsRaw = BigInt.fromUnsignedBytes(stakedHeartsAsBytes)
+  stakeStart.stakeSharesRaw = BigInt.fromUnsignedBytes(stakeSharesAsBytes)
+  stakeStart.stakedDays = BigInt.fromUnsignedBytes(stakedDaysAsBytes)
+  stakeStart.isAutoStake = isAutoStakeAsBytes.length != 0
+
+  log.debug('stake: {} getting data0 from StakeStart event: {} length: {}', [
+    stakeStart.id,
+    data0.toHex(),
+    BigInt.fromI32(data0.length).toString(),
+  ])
+  log.debug('stake: {} sliced bits for stakedHeartsRaw: {} length: {} stakedHeartsRaw: {}', [
+    stakeStart.id,
+    stakedHeartsAsBytes.toHex(),
+    BigInt.fromI32(stakedHeartsAsBytes.length).toString(),
+    stakeStart.stakedHeartsRaw.toString(),
+  ])
+  log.debug('stake: {} sliced bits for stakeSharesRaw: {} length: {} stakeSharesRaw: {}', [
+    stakeStart.id,
+    stakeSharesAsBytes.toHex(),
+    BigInt.fromI32(stakeSharesAsBytes.length).toString(),
+    stakeStart.stakeSharesRaw.toString(),
+  ])
+  log.debug('stake: {} sliced bits for stakedDays: {} length: {} stakedDays: {}', [
+    stakeStart.id,
+    stakedDaysAsBytes.toHex(),
+    BigInt.fromI32(stakedDaysAsBytes.length).toString(),
+    stakeStart.stakedDays.toString(),
+  ])
+  log.debug('stake: {} sliced bits for isAutoStake: {} length: {} isAutoStake: {}', [
+    stakeStart.id,
+    isAutoStakeAsBytes.toHex(),
+    BigInt.fromI32(isAutoStakeAsBytes.length).toString(),
+    stakeStart.isAutoStake ? 'true' : 'false',
+  ])
+  return stakeStart
+}
 
 export function createStakeEnd(event: StakeEndEvent): StakeEnd {
   const stakeId: string = event.params.stakeId.toString()
