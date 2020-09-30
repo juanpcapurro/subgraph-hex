@@ -35,6 +35,8 @@ type StakeStart @entity {
 
 type StakeEnd @entity {
   id: ID! # it's set to the stakeId, stakes can only end once
+  data0: Bytes!
+  data1: Bytes!
   blockNumber: BigInt!
   stakedHeartsRaw: BigInt!
   stakeSharesRaw: BigInt!

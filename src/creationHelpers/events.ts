@@ -82,6 +82,8 @@ export function createStakeEnd(event: StakeEndEvent): StakeEnd {
   const stakeEnd = new StakeEnd(stakeId)
   stakeEnd.blockNumber = event.block.number
 
+  stakeEnd.data0 = data0
+  stakeEnd.data1 = data1
   stakeEnd.servedDays = BigInt.fromUnsignedBytes(servedDaysAsBytes)
   stakeEnd.stakedHeartsRaw = BigInt.fromUnsignedBytes(stakedHeartsAsBytes)
   stakeEnd.stakeSharesRaw = BigInt.fromUnsignedBytes(stakeSharesAsBytes)
