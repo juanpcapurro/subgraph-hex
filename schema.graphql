@@ -1,5 +1,6 @@
 type GlobalState @entity {
-  id: ID! # idk, it should be zero or something
+  "there's only one GlobalState and it has id 'global'"
+  id: ID!
   lockedHeartsTotalRaw: BigInt!
   nextStakeSharesTotalRaw: BigInt!
   shareRateRaw: BigInt!
@@ -15,7 +16,8 @@ type GlobalState @entity {
 }
 
 type ShareRateChange @entity {
-  id: ID! # it's set to the stakeId, I'm not sure what should go here
+  "it's set to the stakeId since each stake triggers zero or one of this"
+  id: ID! 
   blockNumber: BigInt!
   differenceRaw: BigInt!
   oldShareRateRaw: BigInt!
@@ -23,7 +25,8 @@ type ShareRateChange @entity {
 }
 
 type StakeStart @entity {
-  id: ID! # it's set to the stakeId, stakes can only start once
+  "it's set to the stakeId, stakes can only start once"
+  id: ID!
   data0: Bytes!
   stakerAddr: Bytes! # address
   blockNumber: BigInt!
@@ -34,7 +37,8 @@ type StakeStart @entity {
 }
 
 type StakeEnd @entity {
-  id: ID! # it's set to the stakeId, stakes can only end once
+  "it's set to the stakeId, stakes can only end once"
+  id: ID!
   data0: Bytes!
   data1: Bytes!
   blockNumber: BigInt!
@@ -47,14 +51,19 @@ type StakeEnd @entity {
 }
 
 type Stake @entity {
-  id: ID! # equals stakeId
+  "equals stakeId in the contract"
+  id: ID!
   stakerAddr: Bytes! # address
   stakedHeartsRaw: BigInt!
   stakeSharesRaw: BigInt!
-  stakedDays: BigInt! # length of the stake when is created
-  servedDays: BigInt # how many days the stake actually lasted
-  unlockDay: BigInt # day the stake was redeemed. null if it is still running
-  lockDay: BigInt! # day the tokens were staked
+  "length of the stake when is created"
+  stakedDays: BigInt!
+  "how many days the stake actually lasted"
+  servedDays: BigInt
+  "day the stake was redeemed. null if it is still running"
+  unlockDay: BigInt
+  "day the tokens were staked"
+  lockDay: BigInt!
   payoutRaw: BigInt
   penaltyRaw: BigInt
   hadGoodAccounting: Boolean
