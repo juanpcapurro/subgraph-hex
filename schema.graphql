@@ -18,7 +18,9 @@ type GlobalState @entity {
 type ShareRateChange @entity {
   "it's set to the stakeId since each stake triggers zero or one of this"
   id: ID! 
+  stake: Stake!
   blockNumber: BigInt!
+  dayNumber: BigInt!
   differenceRaw: BigInt!
   oldShareRateRaw: BigInt!
   newShareRateRaw: BigInt!
@@ -27,6 +29,7 @@ type ShareRateChange @entity {
 type StakeStart @entity {
   "it's set to the stakeId, stakes can only start once"
   id: ID!
+  stake: Stake!
   data0: Bytes!
   stakerAddr: Bytes! # address
   blockNumber: BigInt!
@@ -39,6 +42,7 @@ type StakeStart @entity {
 type StakeEnd @entity {
   "it's set to the stakeId, stakes can only end once"
   id: ID!
+  stake: Stake!
   data0: Bytes!
   data1: Bytes!
   blockNumber: BigInt!
@@ -68,4 +72,7 @@ type Stake @entity {
   penaltyRaw: BigInt
   hadGoodAccounting: Boolean
   isAutoStake: Boolean!
+  shareRateChange: ShareRateChange @derivedFrom(field: "stake")
+  stakeEnd: StakeEnd @derivedFrom(field: "stake")
+  stakeStart: StakeStart! @derivedFrom(field: "stake")
 }

@@ -46,10 +46,12 @@ export function handleShareRateChange(event: ShareRateChangeEvent): void {
   // TODO: check if there can be multiple ShareRateChange events for a single stakeId
   const shareRateChange: ShareRateChange = new ShareRateChange(stakeId)
 
+  shareRateChange.stake = stakeId
   shareRateChange.oldShareRateRaw = oldShareRateRaw
   shareRateChange.newShareRateRaw = shareRateRaw
   shareRateChange.differenceRaw = shareRateRaw - oldShareRateRaw
   shareRateChange.blockNumber = event.block.number
+  shareRateChange.dayNumber = getCurrentDay(event.block.timestamp)
 
   shareRateChange.save()
 }

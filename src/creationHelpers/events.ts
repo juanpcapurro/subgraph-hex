@@ -10,9 +10,11 @@ export function createStakeStart(event: StakeStartEvent): StakeStart {
   // uint16            stakedDays      -->  data0 [199:184]
   // bool              isAutoStake     -->  data0 [207:200]
   const data0: Bytes = event.params.data0 as Bytes
-  const stakeStart = new StakeStart(event.params.stakeId.toString())
+  const stakeId = event.params.stakeId.toString()
+  const stakeStart = new StakeStart(stakeId)
   stakeStart.data0 = data0
   stakeStart.stakerAddr = event.params.stakerAddr
+  stakeStart.stake = stakeId
   stakeStart.blockNumber = event.block.number
 
   const stakedHeartsAsBytes: Bytes = data0.subarray(5, 14) as Bytes
@@ -81,6 +83,7 @@ export function createStakeEnd(event: StakeEndEvent): StakeEnd {
 
   const stakeEnd = new StakeEnd(stakeId)
   stakeEnd.blockNumber = event.block.number
+  stakeEnd.stake = stakeId
 
   stakeEnd.data0 = data0
   stakeEnd.data1 = data1
