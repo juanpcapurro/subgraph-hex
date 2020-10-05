@@ -1,5 +1,6 @@
 type GlobalState @entity {
-  id: ID! # idk, it should be zero or something
+  "there's only one GlobalState and it has id 'global'"
+  id: ID!
   lockedHeartsTotalRaw: BigInt!
   nextStakeSharesTotalRaw: BigInt!
   shareRateRaw: BigInt!
@@ -15,10 +16,63 @@ type GlobalState @entity {
 }
 
 type ShareRateChange @entity {
-  id: ID! # idk, it should be zero or something
-  stakeId: String!
+  "it's set to the stakeId since each stake triggers zero or one of this"
+  id: ID! 
+  stake: Stake!
   blockNumber: BigInt!
+  dayNumber: BigInt!
   differenceRaw: BigInt!
   oldShareRateRaw: BigInt!
   newShareRateRaw: BigInt!
+}
+
+type StakeStart @entity {
+  "it's set to the stakeId, stakes can only start once"
+  id: ID!
+  stake: Stake!
+  data0: Bytes!
+  stakerAddr: Bytes! # address
+  blockNumber: BigInt!
+  stakedHeartsRaw: BigInt!
+  stakeSharesRaw: BigInt!
+  stakedDays: BigInt!
+  isAutoStake: Boolean!
+}
+
+type StakeEnd @entity {
+  "it's set to the stakeId, stakes can only end once"
+  id: ID!
+  stake: Stake!
+  data0: Bytes!
+  data1: Bytes!
+  blockNumber: BigInt!
+  stakedHeartsRaw: BigInt!
+  stakeSharesRaw: BigInt!
+  payoutRaw: BigInt!
+  penaltyRaw: BigInt!
+  servedDays: BigInt!
+  prevUnlocked: Boolean!
+}
+
+type Stake @entity {
+  "equals stakeId in the contract"
+  id: ID!
+  stakerAddr: Bytes! # address
+  stakedHeartsRaw: BigInt!
+  stakeSharesRaw: BigInt!
+  "length of the stake when is created"
+  stakedDays: BigInt!
+  "how many days the stake actually lasted"
+  servedDays: BigInt
+  "day the stake was redeemed. null if it is still running"
+  unlockDay: BigInt
+  "day the tokens were staked"
+  lockDay: BigInt!
+  payoutRaw: BigInt
+  penaltyRaw: BigInt
+  hadGoodAccounting: Boolean
+  isAutoStake: Boolean!
+  shareRateChange: ShareRateChange @derivedFrom(field: "stake")
+  stakeEnd: StakeEnd @derivedFrom(field: "stake")
+  stakeStart: StakeStart! @derivedFrom(field: "stake")
 }

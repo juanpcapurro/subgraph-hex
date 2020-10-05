@@ -1,23 +1,17 @@
 import { BigInt, ethereum } from '@graphprotocol/graph-ts'
-import { ShareRateChange as ShareRateChangeEvent, Contract } from '../generated/Contract/Contract'
-import { GlobalState, ShareRateChange } from '../generated/schema'
-
-//constants
-const GLOBAL_STATE_ID = 'global'
-
-//helpers
-function getOrCreateGlobalState(): GlobalState {
-  let state = GlobalState.load(GLOBAL_STATE_ID)
-  if (state == null) {
-    state = new GlobalState(GLOBAL_STATE_ID)
-    state.shareRateRaw = new BigInt(0)
-  }
-  return state as GlobalState
-}
+import {
+  ShareRateChange as ShareRateChangeEvent,
+  StakeEnd as StakeEndEvent,
+  StakeStart as StakeStartEvent,
+  HEXContract,
+} from '../generated/HEXContract/HEXContract'
+import { GlobalState, ShareRateChange, Stake, StakeEnd, StakeStart } from '../generated/schema'
+import { createStakeStart, getOrCreateGlobalState, createStakeEnd } from './creationHelpers'
+import { getCurrentDay } from './utils'
 
 function updateGlobalState(event: ethereum.Event): void {
   const state: GlobalState = getOrCreateGlobalState()
-  const contract: Contract = Contract.bind(event.address)
+  const contract: HEXContract = HEXContract.bind(event.address)
   const globals: Array<BigInt> = contract.globalInfo()
 
   state.lockedHeartsTotalRaw = globals[0]
@@ -45,11 +39,44 @@ export function handleShareRateChange(event: ShareRateChangeEvent): void {
   // TODO: check if there can be multiple ShareRateChange events for a single stakeId
   const shareRateChange: ShareRateChange = new ShareRateChange(stakeId)
 
-  shareRateChange.stakeId = stakeId
+  shareRateChange.stake = stakeId
   shareRateChange.oldShareRateRaw = oldShareRateRaw
   shareRateChange.newShareRateRaw = shareRateRaw
   shareRateChange.differenceRaw = shareRateRaw - oldShareRateRaw
   shareRateChange.blockNumber = event.block.number
+  shareRateChange.dayNumber = getCurrentDay(event.block.timestamp)
 
   shareRateChange.save()
+}
+
+export function handleStakeStart(event: StakeStartEvent): void {
+  const stakeStart: StakeStart = createStakeStart(event)
+  const stake: Stake = new Stake(stakeStart.id)
+  stake.stakerAddr = stakeStart.stakerAddr
+  stake.lockDay = getCurrentDay(event.block.timestamp)
+  stake.stakedHeartsRaw = stakeStart.stakedHeartsRaw
+  stake.stakeSharesRaw = stakeStart.stakeSharesRaw
+  stake.stakedDays = stakeStart.stakedDays
+  stake.isAutoStake = stakeStart.isAutoStake
+  stakeStart.save()
+  stake.save()
+}
+
+export function handleStakeEnd(event: StakeEndEvent): void {
+  const stakeId: string = event.params.stakeId.toString()
+  const stake: Stake | null = Stake.load(stakeId)
+  assert(
+    stake != null,
+    'received a stakeEnd event for a non-existing event: ' +
+      stakeId +
+      '. Most likely we failed to import the event in the first place',
+  )
+  const stakeEnd: StakeEnd = createStakeEnd(event)
+  stakeEnd.save()
+  stake.unlockDay = stake.lockDay + stakeEnd.servedDays
+  stake.servedDays = stakeEnd.servedDays
+  stake.hadGoodAccounting = stakeEnd.prevUnlocked
+  stake.penaltyRaw = stakeEnd.penaltyRaw
+  stake.payoutRaw = stakeEnd.payoutRaw
+  stake.save()
 }
