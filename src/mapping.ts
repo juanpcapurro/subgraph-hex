@@ -7,14 +7,7 @@ import {
 } from '../generated/HEXContract/HEXContract'
 import { GlobalState, ShareRateChange, Stake, StakeEnd, StakeStart } from '../generated/schema'
 import { createStakeStart, getOrCreateGlobalState, createStakeEnd } from './creationHelpers'
-
-// there's no way to retrieve it from the contract, but it's hardcoded and the contract isn't upgradeable
-const LAUNCH_TIME = BigInt.fromI32(1575331200)
-const SECONDS_PER_DAY = BigInt.fromI32(60 * 60 * 24)
-
-function getCurrentDay(timestamp: BigInt): BigInt {
-  return (timestamp - LAUNCH_TIME) / SECONDS_PER_DAY
-}
+import { getCurrentDay } from './utils'
 
 function updateGlobalState(event: ethereum.Event): void {
   const state: GlobalState = getOrCreateGlobalState()
