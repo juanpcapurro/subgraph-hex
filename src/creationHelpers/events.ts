@@ -1,4 +1,4 @@
-import { StakeEnd as StakeEndEvent, StakeStart as StakeStartEvent } from '../../generated/Contract/Contract'
+import { StakeEnd as StakeEndEvent, StakeStart as StakeStartEvent } from '../../generated/HEXContract/HEXContract'
 import { StakeEnd, StakeStart } from '../../generated/schema'
 import { BigInt, log, Bytes } from '@graphprotocol/graph-ts'
 

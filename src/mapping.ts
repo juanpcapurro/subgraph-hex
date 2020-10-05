@@ -3,8 +3,8 @@ import {
   ShareRateChange as ShareRateChangeEvent,
   StakeEnd as StakeEndEvent,
   StakeStart as StakeStartEvent,
-  Contract,
-} from '../generated/Contract/Contract'
+  HEXContract,
+} from '../generated/HEXContract/HEXContract'
 import { GlobalState, ShareRateChange, Stake, StakeEnd, StakeStart } from '../generated/schema'
 import { createStakeStart, getOrCreateGlobalState, createStakeEnd } from './creationHelpers'
 
@@ -18,7 +18,7 @@ function getCurrentDay(timestamp: BigInt): BigInt {
 
 function updateGlobalState(event: ethereum.Event): void {
   const state: GlobalState = getOrCreateGlobalState()
-  const contract: Contract = Contract.bind(event.address)
+  const contract: HEXContract = HEXContract.bind(event.address)
   const globals: Array<BigInt> = contract.globalInfo()
 
   state.lockedHeartsTotalRaw = globals[0]
